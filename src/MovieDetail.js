@@ -1,45 +1,40 @@
-import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useQuery } from "react-query";
 import { Poster } from "./Movie";
 import styled from "styled-components";
 import Overdrive from "react-overdrive";
-import MovieApi from "./service/movieApi";
+import { getById } from "./service/movieApi";
 
 const POSTER_PATH = "http://image.tmdb.org/t/p/w154";
 const BACKDROP_PATH = "http://image.tmdb.org/t/p/w1280";
 
 const MovieDetail = () => {
   const { id } = useParams();
-  const [movie, setMovie] = useState();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        let { data } = await MovieApi.getById(id);
-        setMovie(data);
-      } catch (e) {
-        console.log("ERROR_FETCH_GETBYID", e);
-      }
-    };
-    fetchData();
-  }, [id]);
+  const { data, isLoading, isError, error } = useQuery(`movie_${id}`, () =>
+    getById(id)
+  );
+
+  if (isLoading) return <h1>Chargement</h1>;
+
+  if (isError) return <h1>{error}</h1>;
 
   return (
-    <MovieWrapper backdrop={`${BACKDROP_PATH}${movie?.backdrop_path}`}>
+    <MovieWrapper backdrop={`${BACKDROP_PATH}${data.backdrop_path}`}>
       <MovieInfo>
         <Link to={`/`}>
-          <Overdrive id={movie?.id}>
+          <Overdrive id={data.id} animationDelay={1} duration={8000}>
             <Poster
-              src={`${POSTER_PATH}${movie?.poster_path}`}
-              alt={movie?.title}
+              src={`${POSTER_PATH}${data.poster_path}`}
+              alt={data.title}
             />
           </Overdrive>
         </Link>
         <div>
-          {movie?.title ? <h1>Hello</h1> : <h1>Hi</h1>}
-          <h1>{movie?.title}</h1>
-          <h3>{movie?.release_date}</h3>
-          <p>{movie?.overview}</p>
+          {data.title ? <h1>Hello</h1> : <h1>Hi</h1>}
+          <h1>{data.title}</h1>
+          <h3>{data.release_date}</h3>
+          <p>{data.overview}</p>
         </div>
       </MovieInfo>
     </MovieWrapper>

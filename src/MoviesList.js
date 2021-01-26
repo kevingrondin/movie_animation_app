@@ -1,27 +1,20 @@
-import React, { useState, useEffect } from "react";
+import { useQuery } from "react-query";
 import styled from "styled-components";
-import MovieApi from "./service/movieApi";
+import { getAll } from "./service/movieApi";
 import Movie from "./Movie";
 
-function MoviesList() {
-  const [movies, setMovies] = useState();
+const MoviesList = () => {
+  const { data, isLoading, isError, error } = useQuery("movies", getAll);
+  
+  if(isLoading)
+    return <h1>Chargement</h1>
 
-  const fetchData = async () => {
-    try {
-      let { data } = await MovieApi.getAll();
-      setMovies(data.results);
-    } catch (err) {
-      console.log("fetchData_ERROR", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
+  if(isError)
+    return <h1>{error}</h1>
+  
   return (
     <MovieGrid>
-      {movies?.map((m) => (
+      {data?.results?.map((m) => (
         <Movie key={m.id} movie={m} />
       ))}
     </MovieGrid>

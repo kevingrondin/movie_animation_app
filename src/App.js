@@ -1,4 +1,3 @@
-import React from "react";
 import { Routes, Route, HashRouter } from "react-router-dom";
 import MoviesList from "./MoviesList";
 import MovieDetail from "./MovieDetail";
